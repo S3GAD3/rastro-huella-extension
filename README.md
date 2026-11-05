@@ -58,7 +58,7 @@ Funciona como Sherlock, Maigret o Holehe, pero **íntegramente en el navegador**
 
 ### Desde el código
 ```bash
-git clone https://github.com/TU_USUARIO/rastro-huella.git
+git clone https://github.com/S3GAD3/rastro-huella.git
 ```
 y carga la carpeta `extension/` con **Cargar descomprimida**.
 

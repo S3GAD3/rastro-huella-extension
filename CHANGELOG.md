@@ -35,6 +35,6 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). V
 ## Versiones anteriores
 Versiones internas no publicadas: adaptadores por usuario y correo, control anti-falsos positivos con identificador inexistente, verificación en pestaña, correlación (nombres, avatares por dHash, cronología), trazabilidad con SHA-256, informe TXT/HTML/JSON con hash propio y exportaciones CSV para i2 / Maltego / Gephi.
 
-[0.8.1]: https://github.com/OWNER/rastro-huella/releases/tag/v0.8.1
-[0.8.0]: https://github.com/OWNER/rastro-huella/releases/tag/v0.8.0
-[0.7.0]: https://github.com/OWNER/rastro-huella/releases/tag/v0.7.0
+[0.8.1]: ../../releases/tag/v0.8.1
+[0.8.0]: ../../releases/tag/v0.8.0
+[0.7.0]: ../../releases/tag/v0.7.0

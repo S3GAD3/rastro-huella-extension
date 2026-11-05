@@ -1,20 +1,10 @@
-<p align="center">
-  <img src="extension/icons/logo.png" alt="RASTRO · HUELLA" width="220">
-</p>
+# RASTRO · HUELLA
 
-<h1 align="center">RASTRO · HUELLA</h1>
+![RASTRO · HUELLA](docs/logo.png)
 
-<p align="center">
-  Huella digital por <b>nombre de usuario</b> y <b>correo electrónico</b> en fuentes abiertas,<br>
-  desde tu navegador, con <b>trazabilidad de cada petición</b> e <b>informe con hash</b>.
-</p>
+Huella digital por **nombre de usuario** y **correo electrónico** en fuentes abiertas, desde tu navegador, con **trazabilidad de cada petición** e **informe con hash**.
 
-<p align="center">
-  <a href="https://github.com/OWNER/rastro-huella/actions/workflows/ci.yml"><img alt="Pruebas" src="https://github.com/OWNER/rastro-huella/actions/workflows/ci.yml/badge.svg"></a>
-  <a href="LICENSE"><img alt="Licencia MIT" src="https://img.shields.io/badge/licencia-MIT-blue.svg"></a>
-  <img alt="Manifest V3" src="https://img.shields.io/badge/Chrome%20%2F%20Edge-Manifest%20V3-1f6feb">
-  <img alt="Sin dependencias" src="https://img.shields.io/badge/dependencias-0-success">
-</p>
+![Versión 0.8.1](docs/badge-version.svg) ![Licencia MIT](docs/badge-licencia.svg) ![Chrome / Edge · Manifest V3](docs/badge-mv3.svg) ![Sin dependencias](docs/badge-dependencias.svg)
 
 ---
 
@@ -59,7 +49,7 @@ Funciona como Sherlock, Maigret o Holehe, pero **íntegramente en el navegador**
 ## Instalación
 
 ### Desde una versión publicada (recomendado)
-1. Descarga `RASTRO-HUELLA-vX.Y.Z.zip` de [Releases](https://github.com/OWNER/rastro-huella/releases) y, si quieres, comprueba su SHA-256 con el fichero `.sha256` adjunto.
+1. Descarga `RASTRO-HUELLA-vX.Y.Z.zip` de [Releases](../../releases) y, si quieres, comprueba su SHA-256 con el fichero `.sha256` adjunto.
 2. Descomprímelo en una carpeta fija (p. ej. `C:\KitRastro\RASTRO-HUELLA`).
 3. Abre `chrome://extensions` (o `edge://extensions`), activa **Modo desarrollador** → **Cargar descomprimida** → elige la carpeta que contiene `manifest.json`.
 4. Pulsa el icono de la extensión: se abre la consola de investigación.
@@ -68,7 +58,7 @@ Funciona como Sherlock, Maigret o Holehe, pero **íntegramente en el navegador**
 
 ### Desde el código
 ```bash
-git clone https://github.com/OWNER/rastro-huella.git
+git clone https://github.com/TU_USUARIO/rastro-huella.git
 ```
 y carga la carpeta `extension/` con **Cargar descomprimida**.
 

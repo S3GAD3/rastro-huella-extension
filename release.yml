@@ -1,0 +1,31 @@
+name: Publicar versión
+
+# Se ejecuta al subir una etiqueta vX.Y.Z (debe coincidir con la versión de manifest.json)
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: La etiqueta coincide con la versión
+        run: |
+          V=$(node -p "require('./extension/manifest.json').version")
+          test "v$V" = "$GITHUB_REF_NAME" || { echo "Etiqueta $GITHUB_REF_NAME ≠ manifest v$V"; exit 1; }
+      - name: Comprobar, probar y empaquetar
+        run: npm run build
+      - name: Crear la versión en GitHub con el ZIP y su SHA-256
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/*.zip dist/*.sha256 \
+            --title "RASTRO · HUELLA $GITHUB_REF_NAME" \
+            --notes "Instalación: descomprime el ZIP y en chrome://extensions usa «Cargar descomprimida». Cambios en CHANGELOG.md. Verifica el SHA-256 con el fichero .sha256 adjunto."

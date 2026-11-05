@@ -1,0 +1,16 @@
+{
+  "name": "rastro-huella",
+  "version": "0.8.1",
+  "description": "Extensión de navegador para OSINT: huella digital por nombre de usuario y correo, con trazabilidad e informe con hash.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "author": "S3GAD3",
+  "keywords": ["osint", "browser-extension", "manifest-v3", "username", "email", "investigacion", "ciberinteligencia"],
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test tests/regression.mjs",
+    "check": "node scripts/check.mjs",
+    "build": "node scripts/check.mjs && node --test tests/regression.mjs && node scripts/build.mjs"
+  }
+}

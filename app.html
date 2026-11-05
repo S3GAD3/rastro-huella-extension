@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>RASTRO · HUELLA</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <img class="brand-logo" src="icons/logo.png" alt="Logotipo RASTRO HUELLA" width="150" height="116">
+    <div class="brand-txt"><b>RASTRO · HUELLA</b><span>Huella digital por usuario y correo · Kit RASTRO</span></div>
+  </div>
+  <div class="pills">
+    <span class="pill">▣ Consultas desde este equipo</span>
+    <span class="pill">Base sin API · enriquecimiento opcional</span>
+    <span class="pill">Consultas de fuentes públicas</span>
+    <span class="pill ver" id="ver"></span>
+  </div>
+</header>
+
+<section class="searchbar">
+  <div class="row main">
+    <input id="q" placeholder="Usuario, @usuario, URL de perfil o correo · varios separados por comas o espacios" autocomplete="off" spellcheck="false" autofocus aria-label="Identificador a buscar">
+    <input id="exp" placeholder="Expediente / referencia" autocomplete="off" spellcheck="false">
+    <button id="go" class="primary">Buscar</button>
+    <button id="stop" class="ghost" disabled>Detener</button>
+    <button id="reset" class="ghost" title="Vaciar resultados e iniciar una sesión nueva">Nueva sesión</button>
+  </div>
+  <div class="row opts">
+    <span id="detected" class="detected"></span>
+    <label><input type="checkbox" id="optAvatars"> Cargar avatares</label>
+    <label title="FxTwitter / vxTwitter (X/Twitter) reciben el identificador consultado"><input type="checkbox" id="optThird"> Fuentes de terceros</label>
+    <label title="Correo → nombre, foto de perfil, portada y GAIA ID de la cuenta Google. Se ejecuta en una pestaña de fondo con la sesión de Google de este navegador: inicia sesión con una CUENTA DE INVESTIGACIÓN. Google registra la consulta en esa cuenta; el titular del correo no recibe aviso."><input type="checkbox" id="optGoogle"> Google por correo (sesión)</label>
+    <label title="Busca hasta tres alias derivados del correo; no demuestra asociación"><input type="checkbox" id="optDerived"> Explorar alias del correo</label>
+    <label title="Busca automáticamente hasta 5 identificadores descubiertos"><input type="checkbox" id="optAuto"> Pivoteo automático</label>
+    <label title="Las fuentes que bloquean (403, 429, Cloudflare) se abren en una pestaña de fondo de tu navegador, se leen y se cierran. Usa la sesión y las cookies de este navegador."><input type="checkbox" id="optTab"> Verificar bloqueados en pestaña</label>
+    <label title="Máximo de perfiles candidatos a contrastar por fuente de correo">Candidatos por correo <select id="optEmailLimit"><option>5</option><option selected>10</option><option>20</option><option>30</option></select></label>
+    <label>Paralelo <select id="optConc"><option>3</option><option>6</option><option>10</option></select></label>
+    <label>Timeout <select id="optTimeout"><option value="8">8 s</option><option value="12">12 s</option><option value="20">20 s</option></select></label>
+  </div>
+  <div class="progress"><div id="bar"></div><span id="barTxt"></span></div>
+</section>
+
+<nav class="tabs" id="tabs" role="tablist">
+  <button data-tab="res" class="active">Resultados <span class="badge" id="cFound">0</span></button>
+  <button data-tab="piv">Identificadores <span class="badge" id="cPiv">0</span></button>
+  <button data-tab="cor">Correlación</button>
+  <button data-tab="fot">Fotos <span class="badge" id="cFot">0</span></button>
+  <button data-tab="ext">Enriquecimiento</button>
+  <button data-tab="man">Pivotes manuales</button>
+  <button data-tab="trz">Trazabilidad <span class="badge" id="cTrz">0</span></button>
+  <button data-tab="inf">Informe</button>
+  <button data-tab="his">Historial</button>
+  <button data-tab="src">Fuentes</button>
+  <button data-tab="ayu">Ayuda</button>
+</nav>
+
+<main>
+  <p class="method-note">Encontrado indica una huella pública, no identidad acreditada. Los controles fallidos, bloqueos y respuestas ambiguas quedan indeterminados. </p>
+  <!-- RESULTADOS -->
+  <section class="tab active" id="tab-res">
+    <div class="toolbar">
+      <div class="seg" id="filter">
+        <button data-f="linked">Vinculadas <span class="badge" id="cLinked">0</span></button>
+        <button data-f="rel" class="active">Relevantes</button>
+        <button data-f="found">Encontrados</button>
+        <button data-f="unknown">Indeterminados</button>
+        <button data-f="notfound">No encontrados</button>
+        <button data-f="na">No aplica</button>
+        <button data-f="all">Todos</button>
+      </div>
+      <div class="btnrow tight"><button id="tabAll" class="ghost tabbtn" hidden>⟳ Verificar bloqueados en pestaña</button>
+      <input id="ftext" placeholder="Filtrar por texto…" spellcheck="false"></div>
+    </div>
+    <div id="results" data-filter="rel"></div>
+    <div id="empty" class="empty">
+      <p><b>Introduce un identificador para empezar.</b></p>
+      <p>Usuario (<code>jdoe84</code>, <code>@jdoe84</code>), URL de un perfil (<code>https://instagram.com/jdoe84</code>) o correo (<code>jdoe@ejemplo.com</code>). Para un lote, sepáralos con comas o espacios.</p>
+      <p>Cada plataforma se comprueba por separado y los resultados aparecen según llegan. Una coincidencia es un <b>indicio</b>, no una identificación.</p>
+    </div>
+  </section>
+
+  <!-- IDENTIFICADORES -->
+  <section class="tab" id="tab-piv">
+    <div class="toolbar">
+      <p class="muted">Usuarios, correos y enlaces descubiertos en los perfiles encontrados. Pulsa <b>Buscar</b> para pivotar.</p>
+      <button id="pivAll" class="ghost">Buscar todos los pendientes</button>
+    </div>
+    <div id="pivots"></div>
+  </section>
+
+  <!-- CORRELACIÓN -->
+  <section class="tab" id="tab-cor"><div id="correl"><p class="muted">Sin perfiles encontrados todavía.</p></div></section>
+
+  <!-- FOTOS -->
+  <section class="tab" id="tab-fot">
+    <div class="toolbar">
+      <p class="muted">Fotos de perfil y portadas de todos los hallazgos, sin duplicados. «Descargar» guarda la imagen con su SHA-256 en la trazabilidad; el ZIP incluye un manifiesto CSV con fuente, URL, hora y hash de cada fichero.</p>
+      <div class="btnrow tight"><button id="fotZip" class="primary">Descargar todas (ZIP + manifiesto)</button></div>
+    </div>
+    <p class="external-note">La búsqueda inversa (Google Lens, Yandex, Bing, TinEye) envía la URL de la imagen a ese buscador. Las fotos devueltas por proveedores externos no se cargan hasta que lo pidas.</p>
+    <p id="fotStatus" class="muted" role="status"></p>
+    <div id="photos"><p class="muted">Sin fotos todavía.</p></div>
+  </section>
+
+  <!-- PIVOTES MANUALES -->
+  <section class="tab" id="tab-man">
+    <div class="panel">
+      <h2>Documentar una mención pública de correo</h2>
+      <p class="muted">Abre una búsqueda manual, revisa la fuente y pega el fragmento que contiene el correo. Se guarda como aportación del investigador, sin afirmar una captura automática de la web.</p>
+      <form id="mentionForm">
+        <div class="row"><input id="mentionEmail" type="email" required placeholder="Correo investigado" aria-label="Correo de la mención"><input id="mentionUrl" type="url" required placeholder="URL de la fuente" aria-label="URL de la fuente"></div>
+        <textarea id="mentionText" required maxlength="12000" rows="4" placeholder="Fragmento literal que contiene el correo" aria-label="Fragmento de la fuente" style="width:100%;margin:10px 0"></textarea>
+        <button type="submit" class="primary">Guardar mención en la sesión</button>
+      </form>
+    </div><div id="manual"><p class="muted">Lanza una búsqueda para generar los enlaces.</p></div></section>
+
+  <section class="tab" id="tab-ext">
+    <div class="panel">
+      <h2>Enriquecimiento por correo · OSINT Industries</h2>
+      <p class="external-note">Opcional: requiere una clave propia con acceso API y créditos. Al pulsar Consultar se envía el correo a OSINT Industries y puede consumirse saldo. No se activa con Buscar ni con el pivoteo. Los módulos premium están desactivados.</p>
+      <form id="providerForm"><div class="row">
+        <input id="providerEmail" type="email" required autocomplete="off" placeholder="Correo a consultar" aria-label="Correo para proveedor">
+        <input id="providerKey" type="password" required autocomplete="off" placeholder="Clave API (solo en esta pestaña)" aria-label="Clave API">
+        <button type="submit" class="primary">Consultar proveedor</button>
+        <button type="button" id="providerStop" disabled>Detener espera</button>
+      </div></form>
+      <p class="muted">La clave no se guarda ni se exporta. Detener la espera no cancela necesariamente el trabajo o el cobro del proveedor. La cobertura depende de su respuesta; no se garantiza obtener los mismos resultados que Fingerprint.</p>
+      <div id="providerStatus" class="provider-status" role="status"></div>
+      <h3>Importar una respuesta JSON</h3>
+      <p class="muted">Importa un JSON de respuesta de OSINT Industries sin consultar su API. Indica el correo al que corresponde; se conserva como resultado externo declarado por el investigador. No admite cualquier exportación de Fingerprint ni GHunt.</p>
+      <input id="providerImport" type="file" accept=".json,application/json" aria-label="Importar respuesta de OSINT Industries">
+    </div>
+    <div class="panel"><h2>Cobertura y límites de la comparación</h2>
+      <p><b>Google</b> por correo tiene adaptador directo desde la 0.8.0 (opción «Google por correo (sesión)»): nombre, foto, portada y GAIA ID. <b>Facebook</b> por correo no tiene una comprobación pública que no use el flujo de recuperación de cuenta; se ofrecen búsquedas manuales con sesión en Pivotes manuales y, con «Explorar alias del correo», los alias derivados se prueban en Facebook y X. Apple, Adobe, Canva, Plex y ClassDojo solo aparecerán si el proveedor los devuelve. VSCO por correo sigue bloqueado en la prueba sintética. No se simulan perfiles.</p>
+      <p>Para ampliar sin proveedor, activa Explorar alias del correo: se buscan hasta tres variantes en las fuentes por usuario. Un alias derivado es una hipótesis, no prueba que la cuenta use ese correo.</p>
+    </div>
+  </section>
+  <!-- TRAZABILIDAD -->
+  <section class="tab" id="tab-trz">
+    <p class="muted">Registro de cada petición: hora UTC, fuente, tipo (consulta, control anti-falsos positivos o avatar), URL, código HTTP, tiempo, tamaño y SHA-256 del cuerpo recibido. Se incluye íntegro en el informe.</p>
+    <p class="muted" id="traceNote"></p>
+    <div class="tablewrap"><table class="grid" id="trace"><thead><tr><th>Hora (UTC)</th><th>Consulta</th><th>Fuente</th><th>Tipo</th><th>Método</th><th>URL</th><th>HTTP</th><th>ms</th><th>Bytes</th><th>SHA-256</th><th>Error</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <!-- INFORME -->
+  <section class="tab" id="tab-inf">
+    <div class="panel">
+      <h2>Datos del informe</h2>
+      <div class="form">
+        <label>Expediente / referencia<input id="rExp" spellcheck="false"></label>
+        <label>Agente / TIP / unidad<input id="rAgent" spellcheck="false"></label>
+        <label class="full">Observaciones<textarea id="rNotes" rows="3"></textarea></label>
+        <label class="check full"><input type="checkbox" id="rAnnex"> Incluir anexo técnico (campos completos y trazabilidad dentro del informe)</label>
+      </div>
+      <div class="btnrow">
+        <button id="rGen" class="primary">Generar informe</button>
+        <span id="rState" class="muted"></span>
+      </div>
+      <div id="rHashBox" class="hashbox" hidden>
+        <div><span class="muted">SHA-256 del informe TXT</span><code id="rHash"></code></div>
+        <div class="btnrow">
+          <button id="rTxt">Descargar TXT</button>
+          <button id="rHtml">Descargar HTML</button>
+          <button id="rJson">Descargar JSON</button>
+          <button id="rPrint">Imprimir / PDF</button>
+          <button id="rTrace" title="Anexo con todas las peticiones; su SHA-256 figura en el informe">Trazabilidad (CSV)</button>
+          <button id="rCsvE">CSV entidades</button>
+          <button id="rCsvR">CSV relaciones</button>
+          <button id="rEvid" title="Respuestas originales de los positivos con su SHA-256">Evidencias (JSON)</button>
+          <button id="rCopy" class="ghost">Copiar resumen</button>
+        </div>
+      </div>
+    </div>
+    <div class="panel"><h2>Vista previa (TXT)</h2><pre id="rPreview" class="preview">Genera el informe para verlo aquí.</pre></div>
+  </section>
+
+  <!-- HISTORIAL -->
+  <section class="tab" id="tab-his">
+    <div class="toolbar"><p class="muted">Consultas guardadas en este navegador (solo identificador, tipo, expediente, hora y recuento; nunca los perfiles).</p><button id="hisClear" class="ghost danger">Borrar historial</button></div>
+    <div class="tablewrap"><table class="grid" id="history"><thead><tr><th>Hora (UTC)</th><th>Tipo</th><th>Identificador</th><th>Expediente</th><th>Encontrados</th><th></th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <!-- FUENTES -->
+  <section class="tab" id="tab-src">
+    <div class="toolbar"><p class="muted">Fuentes disponibles, método y fiabilidad de la detección. Desactiva las que no quieras consultar.</p>
+      <div class="btnrow"><span id="srcCount" class="muted"></span><button id="srcAll" class="ghost">Activar todas</button><button id="srcReliable" class="ghost">Solo fiabilidad alta/media</button><button id="srcNone" class="ghost">Desactivar todas</button></div></div>
+    <div class="tablewrap"><table class="grid" id="sources"><thead><tr><th></th><th>Fuente</th><th>Tipo</th><th>Categoría</th><th>Fiabilidad</th><th>Método</th><th>Endpoint</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <!-- AYUDA -->
+  <section class="tab" id="tab-ayu">
+    <div class="panel prose">
+      <h2>Qué hace</h2>
+      <p>RASTRO · HUELLA comprueba nombres de usuario y correos en decenas de plataformas a la vez, extrae los datos públicos de cada perfil y descubre nuevos identificadores para seguir pivotando. Funciona como motores tipo fingerprint.to, Sherlock o Maigret (un adaptador por plataforma, consultas en paralelo, resultados en streaming, descubrimiento recursivo), pero <b>íntegramente desde este navegador</b>, sin servidor intermedio ni claves de API.</p>
+      <h2>Uso rápido</h2>
+      <ul>
+        <li>Escribe un alias, <code>@alias</code>, la URL de un perfil o un correo y pulsa <b>Intro</b>. Para un <b>lote</b>, separa varios con comas, espacios o saltos de línea.</li>
+        <li>También puedes seleccionar texto en cualquier web → clic derecho → <b>RASTRO HUELLA: buscar</b>.</li>
+        <li><b>Esc</b> o <b>Detener</b> cancelan al instante las peticiones en curso.</li>
+        <li><b>Identificadores</b> reúne lo descubierto y propone variantes del alias; <b>Correlación</b> agrupa nombres, ubicaciones, fechas y avatares coincidentes.</li>
+        <li>Si cierras la pestaña, la sesión se guarda y se ofrece recuperarla al volver a abrir la herramienta.</li>
+      </ul>
+      <h2>Estados</h2>
+      <ul>
+        <li><b class="s-found">ENCONTRADO</b>: la plataforma confirma la cuenta. Todo positivo se <b>contrasta con un identificador aleatorio inexistente</b>; si la fuente también lo «encuentra», se descarta para el resto de la sesión.</li>
+        <li><b class="s-unknown">INDETERMINADO</b>: bloqueo, login, límite de peticiones, respuesta ambigua o falso positivo detectado por el control. Compruébalo a mano.</li>
+        <li><b class="s-notfound">NO ENCONTRADO</b>: la plataforma indica que no existe. No descarta cuentas con otro alias.</li>
+        <li><b class="s-na">NO APLICA</b>: el identificador no cumple el formato que admite la plataforma.</li>
+        <li><b class="s-info">INFO</b>: datos técnicos (p. ej., servidores de correo del dominio).</li>
+      </ul>
+      <h2>Vínculo con el objetivo</h2>
+      <ul>
+        <li><b class="s-found">VÍNCULO ALTO</b>: correo público exacto contrastado o enlaces recíprocos entre perfiles. No acredita la identidad civil.</li>
+        <li><b class="s-unknown">VÍNCULO MEDIO</b>: coincidencia de nombre completo o avatar similar. Son indicios que requieren revisión.</li>
+        <li><b class="s-notfound">SOLO ALIAS</b>: existe una cuenta con ese alias, pero nada la relaciona con el objetivo. Puede ser otra persona.</li>
+      </ul>
+      <p>El pivoteo automático solo sigue identificadores encontrados en perfiles; los alias derivados del correo se buscan únicamente si lo pides.</p>
+      <h2>Interpretación</h2>
+      <p>Que un alias exista en varias plataformas <b>no prueba</b> que pertenezca a la misma persona. Los enlaces recíprocos y el correo público exacto aportan indicios de vínculo. Un avatar puede ser genérico o copiado; la similitud visual no identifica a una persona.</p>
+      <h2>Seguridad operativa</h2>
+      <ul>
+        <li>Las peticiones salen desde la IP de este equipo y con su navegador. Usa la infraestructura de navegación no atribuible que prevea tu unidad.</li>
+        <li>La extensión <b>no envía tus cookies</b> ni sesiones a las plataformas (credentials: omit) y elimina la cabecera Origin.</li>
+        <li>Para correos se usan consultas de lectura y comprobación; no se solicita el envío de códigos al titular (perfiles públicos, directorios de claves, validación de disponibilidad del alta y estado de cuenta). Nunca recuperación de contraseña ni inicio de sesión.</li>
+        <li>Con “Fuentes de terceros” activo, el alias se envía a FxTwitter (y, si falla, a vxTwitter) para consultar X/Twitter.</li>
+        <li><b>X y Facebook en pestaña</b>: X solo muestra perfiles con JavaScript y Facebook suele exigir sesión. Ambos se verifican abriendo el perfil en una pestaña de fondo; si el navegador tiene sesión en esas redes, la visita se hace con esa cuenta. Usa cuentas y perfil de navegador de investigación.</li>
+        <li><b>Google por correo (sesión)</b>: abre photos.google.com en una pestaña de fondo y consulta, con la sesión de Google de este navegador, la misma API que usan las webs de Google para mostrar a un contacto. Devuelve nombre, foto de perfil, portada, GAIA ID y enlace a sus reseñas de Google Maps. El titular <b>no</b> recibe aviso, pero Google registra la consulta en la cuenta con sesión iniciada: usa una cuenta de investigación, nunca una personal. Solo se piden los datos del perfil del titular, no los contactos de tu cuenta. Es una API interna no documentada: puede dejar de funcionar sin aviso.</li>
+        <li><b>Verificación en pestaña</b>: para fuentes que bloquean las consultas directas (403, 429, Cloudflare), la extensión abre el perfil en una pestaña de fondo, lee la página y la cierra. Esa visita usa la sesión y las cookies de este navegador: si tienes sesión iniciada en la plataforma, la visita se hace con tu cuenta. Usa un perfil de navegador de trabajo sin sesiones personales. Los positivos se contrastan también con un alias inexistente.</li>
+        <li>Los avatares se cargan desde los CDN de cada plataforma; desactiva “Cargar avatares” si no quieres esas peticiones. En <b>Fotos</b> puedes descargarlas con su SHA-256 o en un ZIP con manifiesto.</li>
+        <li>Nada se envía a servidores del Kit RASTRO. El historial se guarda solo en este navegador.</li>
+      </ul>
+      <h2>Integridad y evidencias</h2>
+      <p>Cada petición registra el SHA-256 del cuerpo recibido. El informe TXT termina con una línea con su propio SHA-256, calculado sobre todo el contenido anterior; para verificarlo, elimina la última línea y calcula el hash del resto (Linux: <code>head -n -1 informe.txt | sha256sum</code>). El HTML y el JSON incluyen el hash del TXT de la misma generación.</p>
+      <p><b>Evidencias (JSON)</b> exporta las respuestas originales de los positivos con su hora y hash, para acompañar las capturas. Solo están disponibles en la sesión en curso (no se guardan al cerrar). Los <b>CSV</b> de entidades y relaciones se abren en Excel y se importan en i2 Analyst's Notebook, Maltego o Gephi.</p>
+      <h2>Marco</h2>
+      <p>Herramienta de apoyo para la obtención de información en fuentes abiertas. Su uso debe ajustarse a la normativa aplicable (LO 7/2021 de protección de datos en el ámbito penal, LECrim y los protocolos internos de la unidad) y a la finalidad de la investigación.</p>
+    </div>
+  </section>
+</main>
+
+<iframe id="printFrame" title="Impresión" class="printframe"></iframe>
+
+<script type="module" src="js/ui.js"></script>
+<footer class="signature">Creado por S3GAD3</footer>
+</body>
+</html>

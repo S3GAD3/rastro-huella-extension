@@ -1,0 +1,25 @@
+# Paquetes generados
+dist/
+*.zip
+*.crx
+*.pem
+
+# Node
+node_modules/
+
+# Datos de investigación: nunca al repositorio
+informes/
+evidencias/
+*.evidencias.json
+RASTRO-HUELLA_*.txt
+RASTRO-HUELLA_*.html
+RASTRO-HUELLA_*.json
+RASTRO-HUELLA_*.csv
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
